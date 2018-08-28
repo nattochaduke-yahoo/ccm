@@ -246,6 +246,17 @@ class ClusterAddCmd(Cmd):
         self.remote_debug_port = options.remote_debug_port
         self.initial_token = options.initial_token
 
+        if self.remote_debug_port == "2000": # Default value.  Duplication leads to non-startable node.
+            cnt = 0
+            while True:
+                cnt += 1
+                if cnt == 100:
+                    raise RuntimeError("remote_debug_ports for debugging nodes are full. Specify them by -r option.")
+                if self.remote_debug_port in [node.remote_debug_port for node in self.cluster.nodes.values()]:
+                    self.remote_debug_port = str(100 + int(self.remote_debug_port))
+                else:
+                    break
+
     def run(self):
         try:
             if self.options.dse_node:
